@@ -31,6 +31,43 @@ const zodiacSign = (longitude) => {
   return signs[index];
 };
 
+const calculateAspects = (planetData) => {
+  const aspects = [];
+  const planets = Object.keys(planetData);
+
+  for (let i = 0; i < planets.length; i++) {
+    for (let j = i + 1; j < planets.length; j++) {
+      const planet1 = planets[i];
+      const planet2 = planets[j];
+      const angle = Math.abs(planetData[planet1].az - planetData[planet2].az);
+
+      const aspect = {
+        planet1,
+        planet2,
+      };
+
+      if (angle < 3 || angle > 357) {
+        aspect.type = 'conjunction';
+      } else if (Math.abs(angle - 60) < 3) {
+        aspect.type = 'sextile';
+      } else if (Math.abs(angle - 90) < 3) {
+        aspect.type = 'square';
+      } else if (Math.abs(angle - 120) < 3) {
+        aspect.type = 'trine';
+      } else if (Math.abs(angle - 180) < 3) {
+        aspect.type = 'opposition';
+      } else {
+        continue;
+      }
+
+      aspects.push(aspect);
+    }
+  }
+
+  return aspects;
+};
+
+
 async function generateExplanation(planet, sign, apiKey) {
   const prompt = `In the voice of an expert astrologer, explain the significance of a person born with the planet ${planet} in the sign of ${sign}.`;
 
@@ -58,15 +95,20 @@ async function generateExplanation(planet, sign, apiKey) {
   }
 }
 
-async function generateHolisticReading(planetSignPairs, apiKey) {
+async function generateHolisticReading(planetSignPairs, aspects, apiKey) {
   const structuredPrompts = planetSignPairs
     .map(({ planet, sign }) => `${planet}: ${sign}`)
     .join(', ');
 
-  const prompt = `You are a skilled astrologer. Analyze the following planetary placements and identify the conjunctions, sextiles, squares, trines, and oppositions. After identifying the aspects, explain the effect they have on the person's life. Focus on the aspects and interactions between the planets; do not exceed 200 words.
+  const aspectDescriptions = aspects.map(aspect => `${aspect.planet1} ${aspect.type} ${aspect.planet2}`).join(', ');
+
+  const prompt = `You are a skilled astrologer. Analyze the following planetary placements and aspects to explain their effects on a person's life. Focus on the aspects and interactions between the planets; do not exceed 200 words.
 
 Planetary placements:
 ${structuredPrompts}
+
+Aspects:
+${aspectDescriptions}
 
 Remember to keep the explanation concise and focused on the aspects between the planets.`;
 
@@ -212,7 +254,13 @@ export default async function handler(req, res) {
         planetSignPairs.push({ planet, sign });
       }
 
-      const holisticReading = await generateHolisticReading(planetSignPairs, apiKey);
+      
+
+      // Add this line after the for loop that calculates the planet positions
+      const aspects = calculateAspects(planetData);
+
+      // Update the generateHolisticReading function call to include aspects
+      const holisticReading = await generateHolisticReading(planetSignPairs, aspects, apiKey);
 
       for (const planet of planets) {
         const sign = planetData[planet].sign;
