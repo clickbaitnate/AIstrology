@@ -65,3 +65,12 @@
 	top: 7px;
 	box-shadow: 0 2px 0 #393939, 0px 4px 4px rgba(0,0,0,0.4), inset 0px 2px 5px rgba(0,0,0,0.2);	
 }
+
+.footer {
+  border: 2px solid black;
+  padding: 10px;
+}
+
+.link {
+  text-decoration: underline;
+}

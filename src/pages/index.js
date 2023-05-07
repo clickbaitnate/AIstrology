@@ -101,7 +101,7 @@ const Home = () => {
       {loading && <p>Loading... this may take a moment, grab a coffee.</p>}
       {results && (
       <div>
-      <h2>Holistic Reading</h2>
+      <h2>Aspects</h2>
       <p>{results.holisticReading}</p>
       </div>
       )}
@@ -117,11 +117,12 @@ const Home = () => {
         <br />
         <h4>{results.planetData[planet].sign}</h4>
         <br />
-        <p>Explanation: {results.planetData[planet].explanation}</p>
+        <p>{results.planetData[planet].explanation}</p>
       </div>
 ))}
-
+      <div className={styles.footer}><p>Made by <a href = "https://www.github.com/clickbaitnate/" className={styles.link}>Nathan A.M.</a> and copyleft under the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" className={styles.link}>GPLv3 License</a></p></div>
       </div>
+
       </div>
     );
   };
